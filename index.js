@@ -35,7 +35,7 @@ import {
 	getAllCommentsById,
 } from './controllers/CommentsController.js';
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
 mongoose
 	.connect(process.env.MONGODB_URI, {
