@@ -22,6 +22,7 @@ export const register = async (req, res) => {
 			email: req.body.email,
 			fullName: req.body.fullName,
 			passwordHash: hash,
+			isAdmin: req.body.email === 'igrok1261@gmail.com' ? true : false,
 		});
 
 		const user = await doc.save();
@@ -46,6 +47,9 @@ export const login = async (req, res) => {
 
 		if (!user) {
 			return res.status(404).json({ message: 'User is not found' });
+		}
+		if (user.isBlock === true) {
+			return res.status(404).json({ message: 'User is blocked' });
 		}
 
 		const isValidPass = await bcrypt.compare(
@@ -82,5 +86,51 @@ export const getMe = async (req, res) => {
 		return res.json(userData);
 	} catch (error) {
 		res.status(404).json({ message: 'User is not found' });
+	}
+};
+export const getUsers = async (req, res) => {
+	try {
+		const users = await UserModel.find();
+
+		if (!users) {
+			return res.status(404).json({ message: 'Users is not found' });
+		}
+		return res.json(users);
+	} catch (error) {
+		res.status(404).json({ message: 'Users is not found' });
+	}
+};
+export const removeUser = async (req, res) => {
+	try {
+		await UserModel.findByIdAndDelete({ _id: req.body.id });
+		return res.json({ massage: 'Users is deleted' });
+	} catch (error) {
+		res.status(404).json({ message: 'Users is not found' });
+	}
+};
+export const toggleBlockUser = async (req, res) => {
+	try {
+		const user = await UserModel.findById({ _id: req.body.id });
+		await UserModel.findByIdAndUpdate(
+			{ _id: req.body.id },
+			{ isBlock: !user.isBlock }
+		);
+
+		return res.json({ massage: 'Successful' });
+	} catch (error) {
+		res.status(404).json({ message: 'Users is not found' });
+	}
+};
+export const toggleAdminUser = async (req, res) => {
+	try {
+		const user = await UserModel.findById({ _id: req.body.id });
+		await UserModel.findByIdAndUpdate(
+			{ _id: req.body.id },
+			{ isAdmin: !user.isAdmin }
+		);
+
+		return res.json({ massage: 'Successful' });
+	} catch (error) {
+		res.status(404).json({ message: 'Users is not found' });
 	}
 };
